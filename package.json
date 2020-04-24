@@ -1,6 +1,6 @@
 {
   "name": "signalk-net-ais-plugin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Marine traffic information is gathered from Finnish Transport Agency’s data sources",
   "main": "index.js",
   "scripts": {
