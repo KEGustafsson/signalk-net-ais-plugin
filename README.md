@@ -1,6 +1,4 @@
 # signalk-net-ais-plugin
-SignalK plugin to gather marine traffic information from Finnish Transport Agency’s data sources.
-
 SignalK plugin to gather marine traffic information (AIS) from Finnish Transport Agency’s data sources, https://www.digitraffic.fi/en/.
 
 ![AIS targets around the vessel, radius 200km](doc/200km_radius.jpg)
@@ -11,6 +9,8 @@ User can configure:
 - How old data is fetch
 - Radius around the vessel, which filter data
 
+New:
+- v0.04, Meta data (AIS names) for target
+
 ToDo:
-- More testing
-- Meta data (AIS names) for target
+- More testing and improvements

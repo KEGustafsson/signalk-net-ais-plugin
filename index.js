@@ -116,6 +116,55 @@ let statusArray = [
     'undefined'
 ]
 
+let vesselArray = {
+    20: 'Wing In Ground',
+    29: 'Wing In Ground (no other information)',
+    30: 'Fishing',
+    31: 'Towing',
+    32: 'Towing exceeds 200m or wider than 25m',
+    33: 'Engaged in dredging or underwater operations',
+    34: 'Engaged in diving operations',
+    35: 'Engaged in military operations',
+    36: 'Sailing',
+    37: 'Pleasure',
+    40: 'High speed craft',
+    41: 'High speed craft carrying dangerous goods',
+    42: 'High speed craft hazard cat B',
+    43: 'High speed craft hazard cat C',
+    44: 'High speed craft hazard cat D',
+    49: 'High speed craft (no additional information)',
+    50: 'Pilot vessel',
+    51: 'SAR',
+    52: 'Tug',
+    53: 'Port tender',
+    54: 'Anti-pollution',
+    55: 'Law enforcement',
+    56: 'Spare',
+    57: 'Spare #2',
+    58: 'Medical',
+    59: 'RR Resolution No.1',
+    60: 'Passenger ship',
+    69: 'Passenger ship (no additional information)',
+    70: 'Cargo ship',
+    71: 'Cargo ship carrying dangerous goods',
+    72: 'Cargo ship hazard cat B',
+    73: 'Cargo ship hazard cat C',
+    74: 'Cargo ship hazard cat D',
+    79: 'Cargo ship (no additional information)',
+    80: 'Tanker',
+    81: 'Tanker carrying dangerous goods',
+    82: 'Tanker hazard cat B',
+    83: 'Tanker hazard cat C',
+    84: 'Tanker hazard cat D',
+    89: 'Tanker (no additional information)',
+    90: 'Other',
+    91: 'Other carrying dangerous goods',
+    92: 'Other hazard cat B',
+    93: 'Other hazard cat C',
+    94: 'Other hazard cat D',
+    99: 'Other (no additional information)'
+}
+
 //----------------------------------------------------------------------------
 // Read and parse AIS data
 
@@ -131,7 +180,6 @@ let statusArray = [
 
 
         fetch(url, { method: 'GET'})
-//        fetch(url, { method: 'GET', headers: headers})
           .then((res) => {
              return res.json()
         })
@@ -142,7 +190,6 @@ let statusArray = [
 
           for (i = 0; i < numberAIS; i++) {
             var mmsi = jsonContent.features[i].mmsi;
-            var name = mmsi;
 	    var latitude = jsonContent.features[i].geometry.coordinates[1];
             var longitude = jsonContent.features[i].geometry.coordinates[0];
             var sog = jsonContent.features[i].properties.sog;
@@ -161,7 +208,7 @@ let statusArray = [
 	              values: [
 	                {
 	                  path: '',
-	                  value:{mmsi, name}
+	                  value:{mmsi}
 			},
 			{
 	                  path: 'navigation.position',
@@ -205,6 +252,70 @@ let statusArray = [
             var stampExt = jsonContent.features[i].properties.timestampExternal;
             var stampExt = new Date(stampExt).toISOString();
             app.debug('timestamp: '+stampExt);
+
+	          var url ="https://meri.digitraffic.fi/api/v1/metadata/vessels/"+ jsonContent.features[i].mmsi;
+        	   fetch(url, { method: 'GET'})
+	             .then((res) => {
+	                return res.json()
+	           })
+	           .then((json) => {
+	             var jsonContentMeta = JSON.parse(JSON.stringify(json));
+	             var destination = jsonContentMeta.destination;
+	             var mmsiMeta = jsonContentMeta.mmsi;
+	             var callSign = jsonContentMeta.callSign;
+	             var imo = jsonContentMeta.imo;
+	             var id = jsonContentMeta.shipType;
+            	     var shipTypeName = vesselArray[id];
+	             var draught = jsonContentMeta.draught;
+	             var eta = jsonContentMeta.eta;
+	             var posType = jsonContentMeta.posType;
+	             var name = jsonContentMeta.name;
+                     app.debug('mmsiMeta: '+mmsiMeta);
+                     app.debug('destination: '+destination);
+                     app.debug('callSign: '+callSign);
+                     app.debug('imo: '+imo);
+                     app.debug('shipTypeId: '+id);
+                     app.debug('shipType: '+shipTypeName);
+                     app.debug('draught: '+draught);
+                     app.debug('eta: '+eta);
+                     app.debug('posType: '+posType);
+                     app.debug('nme: '+name);
+
+		        app.handleMessage('net-ais-plugin', {
+	                  context: 'vessels.urn:mrn:imo:mmsi:'+mmsiMeta,
+		          updates: [
+		            {
+		              values: [
+		                {
+		                  path: '',
+		                  value:{name}
+				},
+				{
+		                  path: 'navigation.destination',
+		                  value:destination
+				},
+				{
+		                  path: 'communication.callsignVhf',
+		                  value:callSign
+				},
+				{
+		                  path: 'registrations.imo',
+		                  value:imo
+				},
+				{
+		                  path: 'design.aisShipType',
+				  value:{"name":shipTypeName,id}
+				},
+				{
+		                  path: 'navigation.destination.eta',
+		                  value:eta
+				}
+		              ]
+		            }
+		          ]
+		        })
+	           });
+
           }
         });
   };
