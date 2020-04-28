@@ -10,7 +10,8 @@ User can configure:
 - Radius around the vessel, which filter data
 
 New:
-- v0.04, Meta data (AIS names) for target
+- v0.0.5, sog calculation corrected
+- v0.0.4, Meta data (AIS names) for target
 
 ToDo:
 - More testing and improvements
