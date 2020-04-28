@@ -95,6 +95,14 @@ function degrees_to_radians(degrees)
 }
 
 //----------------------------------------------------------------------------
+// km/h to  knots
+
+function kmh_to_knots(speed)
+{
+  return speed / 1.852;
+}
+
+//----------------------------------------------------------------------------
 // Status Array
 
 let statusArray = [
@@ -192,7 +200,7 @@ let vesselArray = {
             var mmsi = jsonContent.features[i].mmsi;
 	    var latitude = jsonContent.features[i].geometry.coordinates[1];
             var longitude = jsonContent.features[i].geometry.coordinates[0];
-            var sog = jsonContent.features[i].properties.sog;
+            var sog = kmh_to_knots(jsonContent.features[i].properties.sog);
             var cog = degrees_to_radians(jsonContent.features[i].properties.cog);
             var navStat = statusArray[jsonContent.features[i].properties.navStat];
             var rot = degrees_to_radians(jsonContent.features[i].properties.rot);
