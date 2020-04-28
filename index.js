@@ -103,6 +103,14 @@ function kmh_to_knots(speed)
 }
 
 //----------------------------------------------------------------------------
+// draught
+
+function draught_value(data)
+{
+  return data / 10;
+}
+
+//----------------------------------------------------------------------------
 // Status Array
 
 let statusArray = [
@@ -172,6 +180,25 @@ let vesselArray = {
     94: 'Other hazard cat D',
     99: 'Other (no additional information)'
 }
+
+let locationArray = {
+    1: 'GPS',
+    2: 'GLONASS',
+    3: 'combined GPS/GLONASS',
+    4: 'Loran-C',
+    5: 'Chayka',
+    6: 'integrated navigation system',
+    7: 'surveyed',
+    8: 'Galileo',
+    9: 'not used',
+    10: 'not used',
+    11: 'not used',
+    12: 'not used',
+    13: 'not used',
+    14: 'not used',
+    15: 'internal GNSS'
+}
+
 
 //----------------------------------------------------------------------------
 // Read and parse AIS data
@@ -274,10 +301,16 @@ let vesselArray = {
 	             var imo = jsonContentMeta.imo;
 	             var id = jsonContentMeta.shipType;
             	     var shipTypeName = vesselArray[id];
-	             var draught = jsonContentMeta.draught;
+	             var draught = draught_value(jsonContentMeta.draught);
 	             var eta = jsonContentMeta.eta;
-	             var posType = jsonContentMeta.posType;
+	             var posType = locationArray[jsonContentMeta.posType];
 	             var name = jsonContentMeta.name;
+	             var A = jsonContentMeta.referencePointA;
+	             var B = jsonContentMeta.referencePointB;
+	             var C = jsonContentMeta.referencePointC;
+	             var D = jsonContentMeta.referencePointD;
+                     var lenght = (A + B);
+                     var beam = (C + D);
                      app.debug('mmsiMeta: '+mmsiMeta);
                      app.debug('destination: '+destination);
                      app.debug('callSign: '+callSign);
@@ -287,7 +320,13 @@ let vesselArray = {
                      app.debug('draught: '+draught);
                      app.debug('eta: '+eta);
                      app.debug('posType: '+posType);
-                     app.debug('nme: '+name);
+                     app.debug('name: '+name);
+                     app.debug('A: '+A);
+                     app.debug('B: '+B);
+                     app.debug('C: '+C);
+                     app.debug('D: '+D);
+                     app.debug('lenght: '+lenght);
+                     app.debug('beam: '+beam);
 
 		        app.handleMessage('net-ais-plugin', {
 	                  context: 'vessels.urn:mrn:imo:mmsi:'+mmsiMeta,
@@ -317,6 +356,22 @@ let vesselArray = {
 				{
 		                  path: 'navigation.destination.eta',
 		                  value:eta
+				},
+				{
+		                  path: 'design.draft',
+		                  value:{"maximum":draught}
+				},
+				{
+		                  path: 'design.length',
+		                  value:{"overall":lenght}
+				},
+				{
+		                  path: 'design.beam',
+		                  value:beam
+				},
+				{
+		                  path: 'navigation.datetime',
+		                  value:posType
 				}
 		              ]
 		            }
