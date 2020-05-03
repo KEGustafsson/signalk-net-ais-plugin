@@ -10,6 +10,7 @@ User can configure:
 - Radius around the vessel, which filter data
 
 New:
+- v0.0.11, callsingVhf and imo paths fixed
 - v0.0.10, fixes
 - v0.0.9, fixes, key/value locations aligned with AIS input
 - v0.0.8, fetch error logs to console

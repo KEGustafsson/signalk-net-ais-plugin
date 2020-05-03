@@ -360,12 +360,12 @@ let locationArray = {
 				  value:{id,"name":shipTypeName}
 				},
 		                {
-		                  path: 'registrations',
-		                  value:{"imo":imo}
+		                  path: '',
+		                  value:{registrations:{imo:`IMO ${imo}`}}
 				},
 		                {
-		                  path: 'communication',
-		                  value:{"callsignVhf":callSign}
+		                  path: '',
+		                  value:{communication:{callsignVhf:callSign}}
 				},
 				{
 		                  path: 'navigation.destination.eta',
