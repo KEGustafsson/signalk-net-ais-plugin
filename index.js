@@ -359,6 +359,14 @@ let locationArray = {
 		                  path: 'design.aisShipType',
 				  value:{id,"name":shipTypeName}
 				},
+		                {
+		                  path: 'registrations',
+		                  value:{"imo":imo}
+				},
+		                {
+		                  path: 'communication',
+		                  value:{"callsignVhf":callSign}
+				},
 				{
 		                  path: 'navigation.destination.eta',
 		                  value:eta_time
@@ -378,34 +386,6 @@ let locationArray = {
 				{
 		                  path: 'navigation.datetime',
 		                  value:{posType}
-				}
-		              ]
-		            }
-		          ]
-		        })
-
-		        app.handleMessage('net-ais-plugin', {
-	                  context: 'vessels.urn:mrn:imo:mmsi:'+mmsiMeta+'.registrations',
-		          updates: [
-		            {
-		              values: [
-		                {
-		                  path: '',
-		                  value:{"imo":imo}
-				}
-		              ]
-		            }
-		          ]
-		        })
-
-		        app.handleMessage('net-ais-plugin', {
-	                  context: 'vessels.urn:mrn:imo:mmsi:'+mmsiMeta+'.communication',
-		          updates: [
-		            {
-		              values: [
-		                {
-		                  path: '',
-		                  value:{"callsignVhf":callSign}
 				}
 		              ]
 		            }
