@@ -352,20 +352,12 @@ let locationArray = {
 		                  value:{name}
 				},
 				{
-		                  path: 'navigation.destination',
+		                  path: 'navigation.destination.commonName',
 		                  value:destination
 				},
 				{
-		                  path: 'communication.callsign',
-		                  value:callSign
-				},
-				{
-		                  path: 'registrations.imo',
-		                  value:imo
-				},
-				{
 		                  path: 'design.aisShipType',
-				  value:{"name":shipTypeName,id}
+				  value:{id,"name":shipTypeName}
 				},
 				{
 		                  path: 'navigation.destination.eta',
@@ -373,7 +365,7 @@ let locationArray = {
 				},
 				{
 		                  path: 'design.draft',
-		                  value:{"maximum":draught}
+		                  value:{"current":draught,"maximum":draught}
 				},
 				{
 		                  path: 'design.length',
@@ -385,12 +377,41 @@ let locationArray = {
 				},
 				{
 		                  path: 'navigation.datetime',
-		                  value:posType
+		                  value:{posType}
 				}
 		              ]
 		            }
 		          ]
 		        })
+
+		        app.handleMessage('net-ais-plugin', {
+	                  context: 'vessels.urn:mrn:imo:mmsi:'+mmsiMeta+'.registrations',
+		          updates: [
+		            {
+		              values: [
+		                {
+		                  path: '',
+		                  value:{"imo":imo}
+				}
+		              ]
+		            }
+		          ]
+		        })
+
+		        app.handleMessage('net-ais-plugin', {
+	                  context: 'vessels.urn:mrn:imo:mmsi:'+mmsiMeta+'.communication',
+		          updates: [
+		            {
+		              values: [
+		                {
+		                  path: '',
+		                  value:{"callsignVhf":callSign}
+				}
+		              ]
+		            }
+		          ]
+		        })
+
 	           })
                    .catch(err => console.error(err));
           }
