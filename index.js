@@ -111,6 +111,14 @@ function draught_value(data)
 }
 
 //----------------------------------------------------------------------------
+// json size
+function lengthInUtf8Bytes(str,str2) {
+  // Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
+  var m = encodeURIComponent(str).match(/%[89ABab]/g);
+  return (((str.length + (m ? m.length : 0))/1024) + (str2*0.2)).toFixed(1);
+}
+
+//----------------------------------------------------------------------------
 // Status Array
 
 let statusArray = [
@@ -222,6 +230,7 @@ let locationArray = {
 	  var dateobj = new Date( Date.now());
           var date = dateobj.toISOString();
 
+          var myJson = JSON.stringify(json);
           var jsonContent = JSON.parse(JSON.stringify(json));
           var numberAIS = Object.keys(jsonContent.features).length;
           app.debug(numberAIS +' vessel in '+ position_radius +'km radius from vessel');
@@ -276,7 +285,7 @@ let locationArray = {
 	            }
 	          ]
 	        })
-                app.setProviderStatus(`Number of AIS targets received: ${numberAIS} (${date})`);
+                app.setProviderStatus(`Number of AIS targets: ${numberAIS} (data: ${lengthInUtf8Bytes(myJson,numberAIS)}kB, ${date})`);
 
             app.debug('AIS info from: '+ i);
             app.debug('mmsi: '+mmsi);
@@ -394,7 +403,6 @@ let locationArray = {
 		            }
 		          ]
 		        })
-
 	           })
                    .catch(err => console.error(err));
           }
