@@ -219,6 +219,9 @@ let locationArray = {
              return res.json()
         })
         .then((json) => {
+	  var dateobj = new Date( Date.now());
+          var date = dateobj.toISOString();
+
           var jsonContent = JSON.parse(JSON.stringify(json));
           var numberAIS = Object.keys(jsonContent.features).length;
           app.debug(numberAIS +' vessel in '+ position_radius +'km radius from vessel');
@@ -273,7 +276,7 @@ let locationArray = {
 	            }
 	          ]
 	        })
-
+                app.setProviderStatus(`Number of AIS targets received: ${numberAIS} (${date})`);
 
             app.debug('AIS info from: '+ i);
             app.debug('mmsi: '+mmsi);
