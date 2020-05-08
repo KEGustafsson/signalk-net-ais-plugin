@@ -119,26 +119,23 @@ function lengthInUtf8Bytes(str,str2) {
 }
 
 //----------------------------------------------------------------------------
-// Status Array
+// State Array
 
-let statusArray = [
-    'under way using engine',
-    'at anchor',
-    'not under command',
-    'restricted maneuverability',
-    'constrained by her draught',
-    'moored',
-    'aground',
-    'engaged in fishing',
-    'under way sailing',
-    'reserved',
-    'reserved',
-    'power-driven vessel towing astern (regional use)',
-    'power-driven vessel pushing ahead or towing alongside (regional use)',
-    'reserved',
-    'AIS-SART',
-    'undefined'
-]
+let stateArray = {
+  0: 'motoring',
+  1: 'anchored',
+  2: 'not under command',
+  3: 'restricted manouverability',
+  4: 'constrained by draft',
+  5: 'moored',
+  6: 'aground',
+  7: 'fishing',
+  8: 'sailing',
+  9: 'hazardous material high speed',
+  10: 'hazardous material wing in ground',
+  14: 'ais-sart',
+  15: 'default'
+}
 
 let vesselArray = {
     20: 'Wing In Ground',
@@ -241,7 +238,7 @@ let locationArray = {
             var longitude = jsonContent.features[i].geometry.coordinates[0];
             var sog = kmh_to_knots(jsonContent.features[i].properties.sog);
             var cog = degrees_to_radians(jsonContent.features[i].properties.cog);
-            var navStat = statusArray[jsonContent.features[i].properties.navStat];
+            var navStat = stateArray[jsonContent.features[i].properties.navStat];
             var rot = degrees_to_radians(jsonContent.features[i].properties.rot);
             var heading = degrees_to_radians(jsonContent.features[i].properties.heading);
             var stampExt = jsonContent.features[i].properties.timestampExternal;
@@ -398,6 +395,10 @@ let locationArray = {
 				{
 		                  path: 'navigation.datetime',
 		                  value:{posType}
+				},
+				{
+		                  path: 'sensor.ais.class',
+		                  value: "A"
 				}
 		              ]
 		            }
