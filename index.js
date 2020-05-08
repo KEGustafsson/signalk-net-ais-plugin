@@ -263,6 +263,10 @@ let locationArray = {
 	                  value:cog
 			},
 			{
+	                  path: 'navigation.courseOverGroundMagnetic',
+	                  value:cog
+			},
+			{
 	                  path: 'navigation.speedOverGround',
 	                  value:sog
 	                },
