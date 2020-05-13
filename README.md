@@ -10,6 +10,7 @@ User can configure:
 - Radius around the vessel, which filter data
 
 New:
+- v0.0.13, fixes, ais path
 - v0.0.12, fixes, state mapping and dashboard reporting updated
 - v0.0.11, callsignVhf and imo paths fixed
 - v0.0.10, fixes
