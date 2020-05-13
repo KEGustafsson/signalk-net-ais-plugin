@@ -401,7 +401,7 @@ let locationArray = {
 		                  value:{posType}
 				},
 				{
-		                  path: 'sensor.ais.class',
+		                  path: 'sensors.ais.class',
 		                  value: "A"
 				}
 		              ]
