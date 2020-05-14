@@ -1,5 +1,6 @@
 # signalk-net-ais-plugin
 [![npm version](https://badge.fury.io/js/signalk-net-ais-plugin.svg)](https://badge.fury.io/js/signalk-net-ais-plugin)
+[![Known Vulnerabilities](https://snyk.io/test/github/KEGustafsson/signalk-net-ais-plugin/badge.svg)](https://snyk.io/test/github/KEGustafsson/signalk-net-ais-plugin)
 
 SignalK plugin to gather marine traffic information (AIS) from Finnish Transport Agency’s data sources, https://www.digitraffic.fi/en/.
 
