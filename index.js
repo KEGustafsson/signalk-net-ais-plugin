@@ -242,8 +242,7 @@ let locationArray = {
             var rot = degrees_to_radians(jsonContent.features[i].properties.rot);
             var heading = degrees_to_radians(jsonContent.features[i].properties.heading);
             var stampExt = jsonContent.features[i].properties.timestampExternal;
-            var stampExt = new Date(stampExt).toISOString();
-            var timestamp = stampExt;
+            var timestamp = (new Date(stampExt)).toISOString();
 
 	        app.handleMessage('net-ais-plugin', {
                   context: 'vessels.urn:mrn:imo:mmsi:'+mmsi,
@@ -279,6 +278,10 @@ let locationArray = {
 	                  value:heading
 	                },
 			{
+		          path: 'navigation.datetime',
+		          value:timestamp
+			},
+			{
 	                  path: 'navigation.state',
 	                  value:navStat
 	                }
@@ -308,6 +311,7 @@ let locationArray = {
 	           })
 	           .then((json) => {
 	             var jsonContentMeta = JSON.parse(JSON.stringify(json));
+	             var timestampMeta = jsonContentMeta.timestamp;
 	             var destination = jsonContentMeta.destination;
 	             var mmsiMeta = jsonContentMeta.mmsi;
 	             var callSign = jsonContentMeta.callSign;
@@ -317,15 +321,10 @@ let locationArray = {
 	             var draught = draught_value(jsonContentMeta.draught);
 	             var eta = (jsonContentMeta.eta);
                      if (eta == 0) {
-			var eta_time = new Date(0).toISOString();
+			var eta_time = (new Date(0)).toISOString();
                      } else {
-                     	var eta_min = (eta & 63);
-                     	var eta_hour = ((eta & 1984)>>>6);
-                     	var eta_day = ((eta & 63488)>>>11);
-                     	var eta_month = ((eta & 983040)>>>16);
-                     	var eta_time = Date.now() + (1000*(eta_min*60 + eta_hour*3600 + eta_day*86400 + eta_month*2629743));
-                     	var eta_time = new Date(eta_time).toISOString();
-		     }
+                        var eta_time = (new Date(timestampMeta + eta*1000)).toISOString();
+                     }
 	             var posType = locationArray[jsonContentMeta.posType];
 	             var name = jsonContentMeta.name;
 	             var A = jsonContentMeta.referencePointA;
@@ -343,10 +342,6 @@ let locationArray = {
                      app.debug('draught: '+draught);
                      app.debug('eta: '+eta);
                      app.debug('eta_time: '+eta_time);
-                     app.debug('eta_min: '+eta_min);
-                     app.debug('eta_hour: '+eta_hour);
-                     app.debug('eta_day: '+eta_day);
-                     app.debug('eta_month: '+eta_month);
                      app.debug('posType: '+posType);
                      app.debug('name: '+name);
                      app.debug('A: '+A);
@@ -397,8 +392,8 @@ let locationArray = {
 		                  value:beam
 				},
 				{
-		                  path: 'navigation.datetime',
-		                  value:{posType}
+		                  path: 'sensors.position.sensorType',
+		                  value:posType
 				},
 				{
 		                  path: 'sensors.ais.class',
