@@ -209,24 +209,21 @@ let locationArray = {
 // Read and parse AIS data
 
   read_info = function read_data() {
-        var lon = app.getSelfPath('navigation.position.value.longitude');
-        var lat = app.getSelfPath('navigation.position.value.latitude');
-
+    var lon = app.getSelfPath('navigation.position.value.longitude');
+    var lat = app.getSelfPath('navigation.position.value.latitude');
+    if (lon && lat) {
 	var dateobj = new Date( Date.now() - (60000 * position_retention));
         var date = dateobj.toISOString();
-
         var url = ('https://meri.digitraffic.fi/api/v1/locations/latitude/'+ lat +'/longitude/'+ lon +'/radius/'+ position_radius +'/from/'+ date);
         app.debug(lon, lat, date, position_update, position_retention, position_radius, url, headers);
-
 
         fetch(url, { method: 'GET'})
           .then((res) => {
              return res.json()
         })
         .then((json) => {
-	  var dateobj = new Date( Date.now());
+		  var dateobj = new Date( Date.now());
           var date = dateobj.toISOString();
-
           var myJson = JSON.stringify(json);
           var jsonContent = JSON.parse(JSON.stringify(json));
           var numberAIS = Object.keys(jsonContent.features).length;
@@ -234,7 +231,7 @@ let locationArray = {
 
           for (i = 0; i < numberAIS; i++) {
             var mmsi = jsonContent.features[i].mmsi;
-	    var latitude = jsonContent.features[i].geometry.coordinates[1];
+			var latitude = jsonContent.features[i].geometry.coordinates[1];
             var longitude = jsonContent.features[i].geometry.coordinates[0];
             var sog = kmh_to_knots(jsonContent.features[i].properties.sog);
             var cog = degrees_to_radians(jsonContent.features[i].properties.cog);
@@ -317,22 +314,24 @@ let locationArray = {
 	             var callSign = jsonContentMeta.callSign;
 	             var imo = jsonContentMeta.imo;
 	             var id = jsonContentMeta.shipType;
-            	     var shipTypeName = vesselArray[id];
+				 var shipTypeName = vesselArray[id];
 	             var draught = draught_value(jsonContentMeta.draught);
 	             var eta = (jsonContentMeta.eta);
-                     if (eta == 0) {
-			var eta_time = (new Date(0)).toISOString();
-                     } else {
-                        var eta_time = (new Date(timestampMeta + eta*1000)).toISOString();
-                     }
+                 if (eta == 0) {
+					var eta_time = (new Date(0)).toISOString();
+                 }
+				 else
+				 {
+					var eta_time = (new Date(timestampMeta + eta*1000)).toISOString();
+                 }
 	             var posType = locationArray[jsonContentMeta.posType] || 'N/A';
 	             var name = jsonContentMeta.name;
 	             var A = jsonContentMeta.referencePointA;
 	             var B = jsonContentMeta.referencePointB;
 	             var C = jsonContentMeta.referencePointC;
 	             var D = jsonContentMeta.referencePointD;
-                     var lenght = (A + B);
-                     var beam = (C + D);
+                 var lenght = (A + B);
+                 var beam = (C + D);
                      app.debug('mmsiMeta: '+mmsiMeta);
                      app.debug('destination: '+destination);
                      app.debug('callSign: '+callSign);
@@ -408,6 +407,7 @@ let locationArray = {
           }
         })
         .catch(err => console.error(err));
+    }
   };
 
 //----------------------------------------------------------------------------
