@@ -325,7 +325,7 @@ let locationArray = {
                      } else {
                         var eta_time = (new Date(timestampMeta + eta*1000)).toISOString();
                      }
-	             var posType = locationArray[jsonContentMeta.posType];
+	             var posType = locationArray[jsonContentMeta.posType] || 'N/A';
 	             var name = jsonContentMeta.name;
 	             var A = jsonContentMeta.referencePointA;
 	             var B = jsonContentMeta.referencePointB;
