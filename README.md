@@ -13,7 +13,8 @@ User can configure:
 - Radius around the vessel, which filter data
 
 New:
-- v1.0.0
+- v1.1.0, source info added
+- v1.0.0, v1 release
 - v0.0.15, fix: skip data fecthing if no location available & location.sensorType
 - v0.0.14, fix: eta & timestamp
 - v0.0.13, fix: ais path
@@ -26,6 +27,3 @@ New:
 - v0.0.6, all available meta data added
 - v0.0.5, sog calculation corrected
 - v0.0.4, Meta data (AIS names) for target
-
-ToDo:
-- More testing and improvements

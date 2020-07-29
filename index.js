@@ -282,7 +282,9 @@ let locationArray = {
 	                  path: 'navigation.state',
 	                  value:navStat
 	                }
-	              ]
+	              ],
+	              source: { label: plugin.id },
+	              timestamp: (new Date().toISOString()),
 	            }
 	          ]
 	        })
