@@ -288,7 +288,7 @@ let locationArray = {
 	            }
 	          ]
 	        })
-                app.setProviderStatus(`Number of AIS targets: ${numberAIS} (data: ${lengthInUtf8Bytes(myJson,numberAIS)}kB, ${date})`);
+                app.setPluginStatus(`Number of AIS targets: ${numberAIS} (data: ${lengthInUtf8Bytes(myJson,numberAIS)}kB, ${date})`);
 
             app.debug('AIS info from: '+ i);
             app.debug('mmsi: '+mmsi);
