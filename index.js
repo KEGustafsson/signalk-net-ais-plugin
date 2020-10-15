@@ -39,6 +39,7 @@ module.exports = function createPlugin(app) {
   var interval_id1;
   var interval_id2;
   var unsubscribes = [];
+  const setStatus = app.setPluginStatus || app.setProviderStatus;
 
 plugin.start = function (options, restartPlugin) {
 
@@ -288,7 +289,7 @@ let locationArray = {
 	            }
 	          ]
 	        })
-                app.setPluginStatus(`Number of AIS targets: ${numberAIS} (data: ${lengthInUtf8Bytes(myJson,numberAIS)}kB, ${date})`);
+                setStatus(`Number of AIS targets: ${numberAIS} (data: ${lengthInUtf8Bytes(myJson,numberAIS)}kB, ${date})`);
 
             app.debug('AIS info from: '+ i);
             app.debug('mmsi: '+mmsi);
