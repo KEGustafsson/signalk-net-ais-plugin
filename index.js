@@ -289,8 +289,6 @@ module.exports = function createPlugin(app) {
             })
 
             setStatus(`Number of AIS targets: ${numberAIS} (data: ${lengthInUtf8Bytes(myJson, numberAIS)}kB, ${date})`);
-            console.log('navStat: ' + navStat);
-            console.log(jsonContent.features[i].properties.navStat)
             app.debug('AIS info from: ' + i);
             app.debug('mmsi: ' + mmsi);
             app.debug('lat: ' + lat);
