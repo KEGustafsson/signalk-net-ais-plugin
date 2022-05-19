@@ -13,6 +13,7 @@ User can configure:
 - Radius around the vessel, which filter data
 
 New:
+- v1.2.0, fix: navStat fields added
 - v1.1.1, fix: current status of the plugin updated
 - v1.1.0, fix: source info added
 - v1.0.0, v1 release
