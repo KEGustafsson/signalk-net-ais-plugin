@@ -13,6 +13,6 @@
   "author": "Karl-Erik Gustafsson",
   "license": "MIT",
   "dependencies": {
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^3.2.10"
   }
 }
