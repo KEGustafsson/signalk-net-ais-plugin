@@ -211,7 +211,7 @@ module.exports = function createPlugin(app) {
     var lon = app.getSelfPath('navigation.position.value.longitude');
     var lat = app.getSelfPath('navigation.position.value.latitude');
     if (lon && lat) {
-      var date = Math.floor(+new Date() / 1000) - (60000 * position_retention);
+      var date = Math.floor(Date.now()) - (60000 * position_retention);
       var url = ('https://meri.digitraffic.fi/api/ais/v1/locations?from=' + date + '&radius=' + position_radius + '&latitude=' + lat + '&longitude=' + lon);
       app.debug(lon, lat, date, position_update, position_retention, position_radius, url, headers);
 
