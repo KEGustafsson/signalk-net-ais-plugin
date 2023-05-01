@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const fetch = require('node-fetch');
+const fetchNew = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 module.exports = function createPlugin(app) {
   const plugin = {};
@@ -215,7 +215,7 @@ module.exports = function createPlugin(app) {
       var url = ('https://meri.digitraffic.fi/api/ais/v1/locations?from=' + date + '&radius=' + position_radius + '&latitude=' + lat + '&longitude=' + lon);
       app.debug(lon, lat, date, position_update, position_retention, position_radius, url, headers);
 
-      fetch(url, { method: 'GET' })
+      fetchNew(url, { method: 'GET' })
         .then((res) => {
           return res.json()
         })
@@ -302,7 +302,7 @@ module.exports = function createPlugin(app) {
             app.debug('timestamp: ' + stampExt);
 
             var url = "https://meri.digitraffic.fi/api/ais/v1/vessels/" + jsonContent.features[i].mmsi;
-            fetch(url, { method: 'GET' })
+            fetchNew(url, { method: 'GET' })
               .then((res) => {
                 return res.json()
               })
