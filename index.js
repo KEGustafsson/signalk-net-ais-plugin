@@ -402,10 +402,22 @@ module.exports = function createPlugin(app) {
                 })
 
               })
-              .catch(err => console.error(err));
+              .catch(error => {
+                if (error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN') {
+                  console.error(`Error: Could not resolve the address for ${url}. Please check the hostname and try again.`);
+                } else {
+                  console.error('An unexpected error occurred:', error.message || error);
+                }
+              })
           }
         })
-        .catch(err => console.error(err));
+        .catch(error => {
+          if (error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN') {
+            console.error(`Error: Could not resolve the address for ${url}. Please check the hostname and try again.`);
+          } else {
+            console.error('An unexpected error occurred:', error.message || error);
+          }
+        })
     }
   };
 
