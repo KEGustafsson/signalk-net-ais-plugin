@@ -13,6 +13,7 @@ User can configure:
 - Radius around the vessel, which filter data
 
 New:
+- v1.4.1, fix: revert to old fetch
 - v1.4.0, fix: new fetch and sea state data
 - v1.3.1, fix: epoch time in milliseconds
 - v1.3.0, fix: new digitraffic api in use
