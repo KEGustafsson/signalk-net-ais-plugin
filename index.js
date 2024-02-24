@@ -71,9 +71,19 @@ module.exports = function createPlugin(app) {
       }
     );
 
-    interval_id1 = setInterval({ read_info, read_atons }, (5000));
+    interval_id1 = setInterval(() => {
+      read_info();
+      if (options.atons_data) {
+        read_atons();
+      }
+    }, 5000);
     setTimeout(clear, 5000);
-    interval_id2 = setInterval({read_info, read_atons}, (position_update * 60000));
+    interval_id2 = setInterval(() => {
+      read_info();
+      if (options.atons_data) { 
+        read_atons();
+      }
+    }, position_update * 60000);
 
   };
 
@@ -104,6 +114,13 @@ module.exports = function createPlugin(app) {
 
   function draught_value(data) {
     return data / 10;
+  }
+
+  //----------------------------------------------------------------------------
+  // Temperature C to K
+
+  function C_to_K(data) {
+    return data + 273.15;
   }
 
   //----------------------------------------------------------------------------
@@ -229,8 +246,8 @@ module.exports = function createPlugin(app) {
           var type = jsonContent.features[i].properties.siteType;
           var seaState = jsonContent.features[i].properties.seaState;
           var trend = jsonContent.features[i].properties.trend;
-          var windWaveDir = jsonContent.features[i].properties.windWaveDir;
-          var temperature = jsonContent.features[i].properties.temperature;
+          var windWaveDir = degrees_to_radians(jsonContent.features[i].properties.windWaveDir);
+          var temperature = C_to_K(jsonContent.features[i].properties.temperature);
           var stampExt = jsonContent.features[i].properties.lastUpdate;
           var timestamp = (new Date(stampExt)).toISOString();
           app.handleMessage('net-ais-plugin', {
@@ -533,6 +550,11 @@ module.exports = function createPlugin(app) {
         type: 'integer',
         default: 10,
         title: 'AIS targerts around the vessel (radius in km)',
+      },
+      atons_data: {
+        type: 'boolean',
+        default: true,
+        title: 'Fetch AtoN data',
       },
     },
   };
