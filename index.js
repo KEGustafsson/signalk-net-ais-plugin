@@ -71,9 +71,9 @@ module.exports = function createPlugin(app) {
       }
     );
 
-    interval_id1 = setInterval(read_info, (5000));
+    interval_id1 = setInterval({ read_info, read_atons }, (5000));
     setTimeout(clear, 5000);
-    interval_id2 = setInterval(read_info, (position_update * 60000));
+    interval_id2 = setInterval({read_info, read_atons}, (position_update * 60000));
 
   };
 
@@ -206,6 +206,92 @@ module.exports = function createPlugin(app) {
 
   //----------------------------------------------------------------------------
   // Read and parse AIS data
+
+  read_atons = function read_data() {
+    var lon = app.getSelfPath('navigation.position.value.longitude');
+    var lat = app.getSelfPath('navigation.position.value.latitude');
+    if (lon && lat) {
+      var date = Math.floor(Date.now()) - (60000 * position_retention);
+      var url = ('hhttps://meri.digitraffic.fi/api/sse/v1/measurements?from=' + date + '&radius=' + position_radius + '&latitude=' + lat + '&longitude=' + lon);
+      fetchNew(url, { method: 'GET' })
+        .then((res) => {
+          return res.json()
+        })
+      .then((json) => {
+        var myJson = JSON.stringify(json);
+        var jsonContent = JSON.parse(JSON.stringify(json));
+        var numberAtoNs = Object.keys(jsonContent.features).length;
+        for (i = 0; i < numberAtoNs; i++) {
+          var id = jsonContent.features[i].properties.siteNumber;
+          var latitude = jsonContent.features[i].geometry.coordinates[1];
+          var longitude = jsonContent.features[i].geometry.coordinates[0];
+          var name = jsonContent.features[i].properties.siteName;
+          var type = jsonContent.features[i].properties.siteType;
+          var seaState = jsonContent.features[i].properties.seaState;
+          var trend = jsonContent.features[i].properties.trend;
+          var windWaveDir = jsonContent.features[i].properties.windWaveDir;
+          var temperature = jsonContent.features[i].properties.temperature;
+          var stampExt = jsonContent.features[i].properties.lastUpdate;
+          var timestamp = (new Date(stampExt)).toISOString();
+          app.handleMessage('net-ais-plugin', {
+            context: 'aton.urn:mrn:imo:mmsi:' + id,
+            updates: [
+              {
+                values: [
+                  {
+                    path: '',
+                    value: { id }
+                  },
+                  {
+                    path: 'navigation.position',
+                    value: { longitude, latitude }
+                  },
+                  {
+                    path: 'environment.name',
+                    value: name
+                  },
+                  {
+                    path: 'environment.type',
+                    value: type
+                  },
+                  {
+                    path: 'environment.water.seaState',
+                    value: seaState
+                  },
+                  {
+                    path: 'environment.forecast.trend',
+                    value: trend
+                  },
+                  {
+                    path: 'environment.wind.directionTrue',
+                    value: windWaveDir
+                  },
+                  {
+                    path: 'environment.outside.temperature',
+                    value: temperature
+                  },
+                  {
+                    path: 'environment.date',
+                    value: timestamp
+                  }
+                ],
+                source: { label: plugin.id },
+                timestamp: (new Date().toISOString()),
+              }
+            ]
+          })
+          app.debug('AtoN info from: ' + i);
+          app.debug('id: ' + id);
+          app.debug('lat: ' + lat);
+          app.debug('lon: ' + lon);
+          app.debug('name: ' + name);
+          app.debug('type: ' + type);
+          app.debug('timestamp: ' + stampExt);
+        }
+          
+      })
+    }
+  }
 
   read_info = function read_data() {
     var lon = app.getSelfPath('navigation.position.value.longitude');
