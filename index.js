@@ -80,7 +80,7 @@ module.exports = function createPlugin(app) {
     setTimeout(clear, 5000);
     interval_id2 = setInterval(() => {
       read_info();
-      if (options.atons_data) { 
+      if (options.atons_data) {
         read_atons();
       }
     }, position_update * 60000);
@@ -228,85 +228,93 @@ module.exports = function createPlugin(app) {
     var lon = app.getSelfPath('navigation.position.value.longitude');
     var lat = app.getSelfPath('navigation.position.value.latitude');
     if (lon && lat) {
-      var date = Math.floor(Date.now()) - (60000 * position_retention);
-      var url = ('hhttps://meri.digitraffic.fi/api/sse/v1/measurements?from=' + date + '&radius=' + position_radius + '&latitude=' + lat + '&longitude=' + lon);
+      let date = new Date();
+      date.setMinutes(date.getMinutes() - 60);
+      let year = date.getFullYear();
+      let month = (date.getMonth() + 1).toString().padStart(2, '0');
+      let day = date.getDate().toString().padStart(2, '0');
+      let hours = date.getHours().toString().padStart(2, '0');
+      let minutes = date.getMinutes().toString().padStart(2, '0');
+      let seconds = date.getSeconds().toString().padStart(2, '0');
+      let formattedDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000Z`;
+      let encodedString = encodeURIComponent(formattedDate);
+      var url = ('https://meri.digitraffic.fi/api/sse/v1/measurements?from=' + encodedString);
       fetchNew(url, { method: 'GET' })
         .then((res) => {
           return res.json()
         })
-      .then((json) => {
-        var myJson = JSON.stringify(json);
-        var jsonContent = JSON.parse(JSON.stringify(json));
-        var numberAtoNs = Object.keys(jsonContent.features).length;
-        for (i = 0; i < numberAtoNs; i++) {
-          var id = jsonContent.features[i].properties.siteNumber;
-          var latitude = jsonContent.features[i].geometry.coordinates[1];
-          var longitude = jsonContent.features[i].geometry.coordinates[0];
-          var name = jsonContent.features[i].properties.siteName;
-          var type = jsonContent.features[i].properties.siteType;
-          var seaState = jsonContent.features[i].properties.seaState;
-          var trend = jsonContent.features[i].properties.trend;
-          var windWaveDir = degrees_to_radians(jsonContent.features[i].properties.windWaveDir);
-          var temperature = C_to_K(jsonContent.features[i].properties.temperature);
-          var stampExt = jsonContent.features[i].properties.lastUpdate;
-          var timestamp = (new Date(stampExt)).toISOString();
-          app.handleMessage('net-ais-plugin', {
-            context: 'aton.urn:mrn:imo:mmsi:' + id,
-            updates: [
-              {
-                values: [
-                  {
-                    path: '',
-                    value: { id }
-                  },
-                  {
-                    path: 'navigation.position',
-                    value: { longitude, latitude }
-                  },
-                  {
-                    path: 'environment.name',
-                    value: name
-                  },
-                  {
-                    path: 'environment.type',
-                    value: type
-                  },
-                  {
-                    path: 'environment.water.seaState',
-                    value: seaState
-                  },
-                  {
-                    path: 'environment.forecast.trend',
-                    value: trend
-                  },
-                  {
-                    path: 'environment.wind.directionTrue',
-                    value: windWaveDir
-                  },
-                  {
-                    path: 'environment.outside.temperature',
-                    value: temperature
-                  },
-                  {
-                    path: 'environment.date',
-                    value: timestamp
-                  }
-                ],
-                source: { label: plugin.id },
-                timestamp: (new Date().toISOString()),
-              }
-            ]
-          })
-          app.debug('AtoN info from: ' + i);
-          app.debug('id: ' + id);
-          app.debug('lat: ' + lat);
-          app.debug('lon: ' + lon);
-          app.debug('name: ' + name);
-          app.debug('type: ' + type);
-          app.debug('timestamp: ' + stampExt);
-        }
-          
-      })
+        .then((json) => {
+          var jsonContent = json;
+          var numberAtoNs = Object.keys(json.features).length;
+          for (i = 0; i < numberAtoNs; i++) {
+            var id = jsonContent.features[i].properties.siteNumber;
+            var latitude = jsonContent.features[i].geometry.coordinates[1];
+            var longitude = jsonContent.features[i].geometry.coordinates[0];
+            var name = jsonContent.features[i].properties.siteName;
+            var type = jsonContent.features[i].properties.siteType;
+            var seaState = jsonContent.features[i].properties.seaState;
+            var trend = jsonContent.features[i].properties.trend;
+            var windWaveDir = degrees_to_radians(jsonContent.features[i].properties.windWaveDir);
+            var temperature = C_to_K(jsonContent.features[i].properties.temperature);
+            var stampExt = jsonContent.features[i].properties.lastUpdate;
+            var timestamp = (new Date(stampExt)).toISOString();
+            app.handleMessage('net-ais-plugin', {
+              context: 'atons.urn:mrn:imo:mmsi:' + id,
+              updates: [
+                {
+                  values: [
+                    {
+                      path: 'environment.siteNumber',
+                      value: id
+                    },
+                    {
+                      path: 'navigation.position',
+                      value: { longitude, latitude }
+                    },
+                    {
+                      path: '',
+                      value: { name }
+                    },
+                    {
+                      path: 'environment.type',
+                      value: type
+                    },
+                    {
+                      path: 'environment.water.seaState',
+                      value: seaState
+                    },
+                    {
+                      path: 'environment.forecast.trend',
+                      value: trend
+                    },
+                    {
+                      path: 'environment.wind.directionTrue',
+                      value: windWaveDir
+                    },
+                    {
+                      path: 'environment.outside.temperature',
+                      value: temperature
+                    },
+                    {
+                      path: 'environment.date',
+                      value: timestamp
+                    }
+                  ],
+                  source: { label: plugin.id },
+                  timestamp: (new Date().toISOString()),
+                }
+              ]
+            })
+            app.debug('AtoN info from: ' + i);
+            app.debug('id: ' + id);
+            app.debug('lat: ' + lat);
+            app.debug('lon: ' + lon);
+            app.debug('name: ' + name);
+            app.debug('type: ' + type);
+            app.debug('timestamp: ' + stampExt);
+          }
+
+        })
     }
   }
 
@@ -326,10 +334,9 @@ module.exports = function createPlugin(app) {
           var dateobj = new Date(Date.now());
           var date = dateobj.toISOString();
           var myJson = JSON.stringify(json);
-          var jsonContent = JSON.parse(JSON.stringify(json));
-          var numberAIS = Object.keys(jsonContent.features).length;
+          var jsonContent = json;
+          var numberAIS = Object.keys(json.features).length;
           app.debug(numberAIS + ' vessel in ' + position_radius + 'km radius from vessel');
-
           for (i = 0; i < numberAIS; i++) {
             var mmsi = jsonContent.features[i].mmsi;
             var latitude = jsonContent.features[i].geometry.coordinates[1];
@@ -410,7 +417,7 @@ module.exports = function createPlugin(app) {
                 return res.json()
               })
               .then((json) => {
-                var jsonContentMeta = JSON.parse(JSON.stringify(json));
+                var jsonContentMeta = json;
                 var timestampMeta = jsonContentMeta.timestamp;
                 var destination = jsonContentMeta.destination;
                 var mmsiMeta = jsonContentMeta.mmsi;
