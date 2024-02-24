@@ -37,6 +37,8 @@ module.exports = function createPlugin(app) {
   var headers = '{ "accept": "application/geo+json" }';
   var interval_id1;
   var interval_id2;
+  var interval_id1A;
+  var interval_id2A;
   var unsubscribes = [];
   const setStatus = app.setPluginStatus || app.setProviderStatus;
 
@@ -71,29 +73,26 @@ module.exports = function createPlugin(app) {
       }
     );
 
-    interval_id1 = setInterval(() => {
-      read_info();
-      if (options.atons_data) {
-        read_atons();
-      }
-    }, 5000);
+    interval_id1 = setInterval(read_info, (5000));
+    setTimeout(clear1, 5000);
+    interval_id2 = setInterval(read_info, (position_update * 60000));
 
-    setTimeout(clear, 5000);
-    
-    interval_id2 = setInterval(() => {
-      read_info();
-      if (options.atons_data) {
-        read_atons();
-      }
-    }, position_update * 60000);
-
+    if (options.atons_data) {
+      interval_id1A = setInterval(read_atons, (5000));    
+      setTimeout(clear2, 5000);
+      interval_id2A = setInterval(read_atons, (position_update * 60000));  
+    }
   };
 
   //----------------------------------------------------------------------------
   // Clear start interval
 
-  function clear() {
+  function clear1() {
     clearInterval(interval_id1);
+  };
+
+  function clear2() {
+    clearInterval(interval_id1A);
   };
 
   //----------------------------------------------------------------------------
@@ -306,8 +305,8 @@ module.exports = function createPlugin(app) {
           })
           app.debug('AtoN info from: ' + i);
           app.debug('id: ' + id);
-          app.debug('lat: ' + lat);
-          app.debug('lon: ' + lon);
+          app.debug('lat: ' + latitude);
+          app.debug('lon: ' + longitude);
           app.debug('name: ' + name);
           app.debug('type: ' + type);
           app.debug('timestamp: ' + stampExt);
