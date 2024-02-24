@@ -13,6 +13,7 @@ User can configure:
 - Radius around the vessel, which filter data
 
 New:
+- v1.5.0, feat: atons included 
 - v1.4.1, fix: small fixes  
 - v1.4.0, fix: fetch to new version 
 - v1.3.1, fix: epoch time in milliseconds
