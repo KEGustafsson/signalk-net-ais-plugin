@@ -257,7 +257,7 @@ module.exports = function createPlugin(app) {
           var stampExt = jsonContent.features[i].properties.lastUpdate;
           var timestamp = (new Date(stampExt)).toISOString();
           app.handleMessage('net-ais-plugin', {
-            context: 'atons.urn:mrn:imo:mmsi:' + id,
+            context: 'meteo.urn:mrn:imo:mmsi:' + id,
             updates: [
               {
                 values: [
