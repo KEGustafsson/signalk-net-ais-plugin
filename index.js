@@ -78,9 +78,9 @@ module.exports = function createPlugin(app) {
     interval_id2 = setInterval(read_info, (position_update * 60000));
 
     if (options.atons_data) {
-      interval_id1A = setInterval(read_atons, (5000));    
+      interval_id1A = setInterval(read_meteo, (5000));    
       setTimeout(clear2, 5000);
-      interval_id2A = setInterval(read_atons, (position_update * 60000));  
+      interval_id2A = setInterval(read_meteo, (position_update * 60000));  
     }
   };
 
@@ -225,7 +225,7 @@ module.exports = function createPlugin(app) {
   //----------------------------------------------------------------------------
   // Read and parse AIS data
 
-  read_atons = function read_atons() {
+  read_meteo = function read_meteo() {
     let date = new Date();
     date.setMinutes(date.getMinutes() - 60);
     let year = date.getFullYear();
@@ -262,7 +262,7 @@ module.exports = function createPlugin(app) {
               {
                 values: [
                   {
-                    path: 'environment.siteNumber',
+                    path: 'environment.observation.siteNumber',
                     value: id
                   },
                   {
@@ -274,7 +274,7 @@ module.exports = function createPlugin(app) {
                     value: { name }
                   },
                   {
-                    path: 'environment.type',
+                    path: 'environment.observation.type',
                     value: type
                   },
                   {
@@ -303,7 +303,7 @@ module.exports = function createPlugin(app) {
               }
             ]
           })
-          app.debug('AtoN info from: ' + i);
+          app.debug('Meteo info from: ' + i);
           app.debug('id: ' + id);
           app.debug('lat: ' + latitude);
           app.debug('lon: ' + longitude);
@@ -565,7 +565,7 @@ module.exports = function createPlugin(app) {
       atons_data: {
         type: 'boolean',
         default: true,
-        title: 'Fetch AtoN data',
+        title: 'Fetch Meteo data (Sea State Estimation) from AtoN sites',
       },
     },
   };
