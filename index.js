@@ -246,6 +246,7 @@ module.exports = function createPlugin(app) {
         var numberAtoNs = Object.keys(json.features).length;
         for (i = 0; i < numberAtoNs; i++) {
           var id = jsonContent.features[i].properties.siteNumber;
+          var mmsi = String(id).padStart(9, '0')
           var latitude = jsonContent.features[i].geometry.coordinates[1];
           var longitude = jsonContent.features[i].geometry.coordinates[0];
           var name = jsonContent.features[i].properties.siteName;
@@ -257,12 +258,16 @@ module.exports = function createPlugin(app) {
           var stampExt = jsonContent.features[i].properties.lastUpdate;
           var timestamp = (new Date(stampExt)).toISOString();
           app.handleMessage('net-ais-plugin', {
-            context: 'meteo.urn:mrn:imo:mmsi:' + id,
+            context: 'meteo.urn:mrn:imo:mmsi:' + mmsi,
             updates: [
               {
                 values: [
                   {
-                    path: 'environment.observation.siteNumber',
+                    path: '',
+                    value: { mmsi }
+                  },
+                  {
+                    path: 'environment.station.siteNumber',
                     value: id
                   },
                   {
@@ -274,7 +279,7 @@ module.exports = function createPlugin(app) {
                     value: { name }
                   },
                   {
-                    path: 'environment.observation.type',
+                    path: 'environment.station.type',
                     value: type
                   },
                   {
@@ -304,7 +309,7 @@ module.exports = function createPlugin(app) {
             ]
           })
           app.debug('Meteo info from: ' + i);
-          app.debug('id: ' + id);
+          app.debug('id: ' + mmsi);
           app.debug('lat: ' + latitude);
           app.debug('lon: ' + longitude);
           app.debug('name: ' + name);

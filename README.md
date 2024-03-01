@@ -13,6 +13,7 @@ User can configure:
 - Radius around the vessel, which filter data
 
 New:
+- v1.5.3, fix: paths updated
 - v1.5.2, fix: small fixes 
 - v1.5.1, fix: atons -> meteo context 
 - v1.5.0, feat: atons included 
