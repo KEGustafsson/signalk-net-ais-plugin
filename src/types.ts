@@ -44,7 +44,7 @@ export interface SignalKPlugin {
   id: string;
   name: string;
   description: string;
-  start: (options: PluginOptions, restartPlugin: () => void) => void;
+  start: (options: PluginOptions, restartPlugin?: () => void) => void;
   stop: () => void;
   schema: PluginSchema;
 }

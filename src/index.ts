@@ -39,9 +39,9 @@ function createPlugin(app: SignalKApp): SignalKPlugin {
   let positionRetention = 30;
   let positionRadius = 10;
 
-  let intervalInitialAis: ReturnType<typeof setInterval> | undefined;
+  let timeoutInitialAis: ReturnType<typeof setTimeout> | undefined;
   let intervalAis: ReturnType<typeof setInterval> | undefined;
-  let intervalInitialMeteo: ReturnType<typeof setInterval> | undefined;
+  let timeoutInitialMeteo: ReturnType<typeof setTimeout> | undefined;
   let intervalMeteo: ReturnType<typeof setInterval> | undefined;
   let unsubscribes: Array<() => void> = [];
 
@@ -135,6 +135,9 @@ function createPlugin(app: SignalKApp): SignalKPlugin {
       "Marine traffic information is gathered from Finnish Transport Agency's data sources",
 
     start(options: PluginOptions) {
+      // Guard against double-start: clean up any existing timers
+      plugin.stop();
+
       positionUpdate = options.position_update;
       positionRetention = options.position_retention;
       positionRadius = options.position_radius;
@@ -160,40 +163,28 @@ function createPlugin(app: SignalKApp): SignalKPlugin {
         }
       );
 
-      // Initial fetch after 5s, then at configured interval
-      intervalInitialAis = setInterval(() => void readInfo(), 5000);
-      setTimeout(() => {
-        if (intervalInitialAis !== undefined) {
-          clearInterval(intervalInitialAis);
-          intervalInitialAis = undefined;
-        }
-      }, 5000);
+      // Initial fetch after short delay, then at configured interval
+      timeoutInitialAis = setTimeout(() => void readInfo(), 5000);
       intervalAis = setInterval(() => void readInfo(), positionUpdate * 60000);
 
       if (options.atons_data) {
-        intervalInitialMeteo = setInterval(() => void readMeteo(), 5000);
-        setTimeout(() => {
-          if (intervalInitialMeteo !== undefined) {
-            clearInterval(intervalInitialMeteo);
-            intervalInitialMeteo = undefined;
-          }
-        }, 5000);
+        timeoutInitialMeteo = setTimeout(() => void readMeteo(), 5000);
         intervalMeteo = setInterval(() => void readMeteo(), positionUpdate * 60000);
       }
     },
 
     stop() {
-      if (intervalInitialAis !== undefined) {
-        clearInterval(intervalInitialAis);
-        intervalInitialAis = undefined;
+      if (timeoutInitialAis !== undefined) {
+        clearTimeout(timeoutInitialAis);
+        timeoutInitialAis = undefined;
       }
       if (intervalAis !== undefined) {
         clearInterval(intervalAis);
         intervalAis = undefined;
       }
-      if (intervalInitialMeteo !== undefined) {
-        clearInterval(intervalInitialMeteo);
-        intervalInitialMeteo = undefined;
+      if (timeoutInitialMeteo !== undefined) {
+        clearTimeout(timeoutInitialMeteo);
+        timeoutInitialMeteo = undefined;
       }
       if (intervalMeteo !== undefined) {
         clearInterval(intervalMeteo);

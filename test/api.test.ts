@@ -159,9 +159,9 @@ describe('fetchMeasurements', () => {
 });
 
 describe('formatMeasurementDate', () => {
-  it('returns a properly formatted date string', () => {
+  it('returns a valid ISO 8601 UTC date string', () => {
     const result = formatMeasurementDate();
-    expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.000Z$/);
+    expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
   });
 
   it('returns a date approximately 60 minutes in the past', () => {
@@ -171,11 +171,31 @@ describe('formatMeasurementDate', () => {
     // Allow 5 seconds tolerance
     expect(Math.abs(parsed - expected)).toBeLessThan(5000);
   });
+
+  it('returns correct UTC time with fake timers', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-06-15T14:30:00.000Z'));
+    const result = formatMeasurementDate();
+    expect(result).toBe('2024-06-15T13:30:00.000Z');
+    vi.useRealTimers();
+  });
 });
 
 describe('isNetworkError', () => {
-  it('returns true for TypeError', () => {
+  it('returns true for fetch-related TypeError', () => {
     expect(isNetworkError(new TypeError('fetch failed'))).toBe(true);
+  });
+
+  it('returns true for network failure TypeError', () => {
+    expect(isNetworkError(new TypeError('NetworkError when attempting to fetch resource'))).toBe(true);
+  });
+
+  it('returns true for abort TypeError', () => {
+    expect(isNetworkError(new TypeError('The operation was aborted'))).toBe(true);
+  });
+
+  it('returns false for unrelated TypeError', () => {
+    expect(isNetworkError(new TypeError('Cannot read properties of undefined'))).toBe(false);
   });
 
   it('returns true for ENOTFOUND', () => {

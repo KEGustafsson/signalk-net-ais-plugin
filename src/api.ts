@@ -43,19 +43,12 @@ export async function fetchMeasurements(fromDate: string): Promise<MeasurementsR
 }
 
 export function formatMeasurementDate(): string {
-  const date = new Date();
-  date.setMinutes(date.getMinutes() - 60);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000Z`;
+  const date = new Date(Date.now() - 60 * 60 * 1000);
+  return date.toISOString();
 }
 
 export function isNetworkError(error: unknown): boolean {
-  if (error instanceof TypeError) {
+  if (error instanceof TypeError && /fetch|network|abort/i.test(error.message)) {
     return true;
   }
   if (error !== null && typeof error === 'object' && 'code' in error) {

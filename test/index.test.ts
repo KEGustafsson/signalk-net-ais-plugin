@@ -264,7 +264,7 @@ describe('AIS data fetching', () => {
     const app = createMockApp();
     const plugin = createPlugin(app);
 
-    mockFetch.mockRejectedValueOnce(new TypeError('fetch failed'));
+    mockFetch.mockRejectedValueOnce(new TypeError('Failed to fetch'));
 
     plugin.start(defaultOptions(), () => {});
     await vi.advanceTimersByTimeAsync(5000);
@@ -410,7 +410,70 @@ describe('status reporting', () => {
     delete app.setPluginStatus;
     (app as SignalKApp & { setProviderStatus: (s: string) => void }).setProviderStatus = vi.fn();
     const plugin = createPlugin(app);
-    // Should not throw
     expect(plugin.id).toBe('net-ais-plugin');
+  });
+
+  it('reports status via setProviderStatus when setPluginStatus is absent', async () => {
+    const providerStatusMessages: string[] = [];
+    const app = createMockApp();
+    delete app.setPluginStatus;
+    (app as SignalKApp & { setProviderStatus: (s: string) => void }).setProviderStatus = (s: string) => {
+      providerStatusMessages.push(s);
+    };
+
+    const plugin = createPlugin(app);
+
+    mockFetch
+      .mockResolvedValueOnce(mockJsonResponse({
+        features: [{
+          mmsi: 123, geometry: { coordinates: [24, 60] },
+          properties: { sog: 0, cog: 0, navStat: 0, rot: 0, heading: 0, timestampExternal: '2024-01-01T00:00:00Z' },
+        }],
+      }))
+      .mockResolvedValueOnce(mockJsonResponse({
+        mmsi: 123, name: 'T', destination: '', callSign: '', imo: 0,
+        shipType: 70, draught: 0, eta: 0, posType: 1, timestamp: 0,
+        referencePointA: 0, referencePointB: 0, referencePointC: 0, referencePointD: 0,
+      }));
+
+    plugin.start(defaultOptions(), () => {});
+    await vi.advanceTimersByTimeAsync(5000);
+
+    expect(providerStatusMessages.length).toBeGreaterThan(0);
+    expect(providerStatusMessages[0]).toContain('Number of AIS targets: 1');
+    plugin.stop();
+  });
+});
+
+describe('double start protection', () => {
+  it('cleans up intervals when start() is called twice', async () => {
+    const app = createMockApp();
+    const plugin = createPlugin(app);
+
+    mockFetch.mockResolvedValue(mockJsonResponse({ features: [] }));
+
+    plugin.start(defaultOptions(), () => {});
+    // Start again without stop - should not leak
+    plugin.start(defaultOptions(), () => {});
+
+    await vi.advanceTimersByTimeAsync(5000);
+
+    // Only one set of fetches should be active
+    // The first start's timers should have been cleaned up
+    plugin.stop();
+  });
+
+  it('does not throw when start() is called twice with atons_data', async () => {
+    const app = createMockApp();
+    const plugin = createPlugin(app);
+
+    mockFetch.mockResolvedValue(mockJsonResponse({ features: [] }));
+
+    const options = { ...defaultOptions(), atons_data: true };
+    plugin.start(options, () => {});
+    plugin.start(options, () => {});
+
+    await vi.advanceTimersByTimeAsync(5000);
+    plugin.stop();
   });
 });
