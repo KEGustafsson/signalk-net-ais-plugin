@@ -1,10 +1,18 @@
 {
   "name": "signalk-net-ais-plugin",
-  "version": "1.5.3",
+  "version": "2.0.0",
   "description": "Marine traffic information is gathered from Finnish Transport Agency’s data sources",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "lint": "tsc --noEmit",
+    "build": "npm run clean && tsc",
+    "test": "vitest run",
+    "prepublishOnly": "npm run lint && npm run test && npm run build"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [
     "signalk-node-server-plugin"
@@ -12,7 +20,9 @@
   "repository": "https://github.com/KEGustafsson/signalk-net-ais-plugin",
   "author": "Karl-Erik Gustafsson",
   "license": "MIT",
-  "dependencies": {
-    "node-fetch": "^3.3.1"
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
   }
 }

@@ -4,6 +4,8 @@
 
 SignalK plugin to gather marine traffic information (AIS) from Finnish Transport Agency’s data sources, https://www.digitraffic.fi/en/.
 
+**Requires Node.js 18 or later** (uses built-in fetch API).
+
 ![AIS targets around the vessel, radius 200km](doc/200km_radius.jpg)
 AIS targets around the vessel in Turku archipelago, radius set to 200km
 
@@ -12,7 +14,18 @@ User can configure:
 - How old data is fetch
 - Radius around the vessel, which filter data
 
-New:
+## Development
+
+```bash
+npm install        # install dependencies
+npm run lint       # type-check
+npm run build      # clean and compile TypeScript to dist/
+npm test           # run tests
+```
+
+## Changelog
+
+- v2.0.0, refactor: TypeScript, native fetch, test suite, bug fixes
 - v1.5.3, fix: paths updated
 - v1.5.2, fix: small fixes 
 - v1.5.1, fix: atons -> meteo context 
