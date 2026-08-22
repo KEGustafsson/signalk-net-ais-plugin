@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────
+# SignalK Plugin CI
+#
+# Calls the shared SignalK reusable workflow, which validates the
+# plugin manifest, entry point, JSON schema and start/stop/restart
+# lifecycle, then builds and runs the test suite on Linux (x64 and
+# arm64), macOS and Windows with Node 22 and 24.
+#
+# armv7 (Cerbo GX / Venus OS, QEMU-emulated Node 20) is deliberately
+# NOT run: it is advisory-only and costs ~30 minutes of emulated CI
+# per push. It can still be enabled for a single run from the Actions
+# UI via the manual trigger below.
+# ─────────────────────────────────────────────────────────────
+
+name: SignalK Plugin CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+    inputs:
+      node-versions:
+        description: 'JSON array of Node versions, example: ["22","24"]'
+        required: false
+        default: '["22", "24"]'
+        type: string
+      enable-armv7:
+        description: Run armv7 (Cerbo GX) tests via QEMU
+        required: false
+        default: false
+        type: boolean
+      enable-signalk-integration:
+        description: Start SignalK server and install the plugin for integration testing
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Automatic runs (push / pull request) ──────────────────
+  plugin-ci:
+    if: ${{ github.event_name != 'workflow_dispatch' }}
+    uses: SignalK/signalk-server/.github/workflows/plugin-ci.yml@master
+    with:
+      build-command: npm run build
+      test-command: npm run test
+      node-versions: '["22", "24"]'
+      enable-armv7: false
+      enable-signalk-integration: false
+
+  # ── Manual runs (workflow_dispatch with custom inputs) ────
+  plugin-ci-manual:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    uses: SignalK/signalk-server/.github/workflows/plugin-ci.yml@master
+    with:
+      build-command: npm run build
+      test-command: npm run test
+      node-versions: ${{ inputs.node-versions }}
+      enable-armv7: ${{ inputs.enable-armv7 }}
+      enable-signalk-integration: ${{ inputs.enable-signalk-integration }}

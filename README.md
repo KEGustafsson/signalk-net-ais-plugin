@@ -1,6 +1,7 @@
 # signalk-net-ais-plugin
 [![npm version](https://badge.fury.io/js/signalk-net-ais-plugin.svg)](https://badge.fury.io/js/signalk-net-ais-plugin)
 [![Known Vulnerabilities](https://snyk.io/test/github/KEGustafsson/signalk-net-ais-plugin/badge.svg)](https://snyk.io/test/github/KEGustafsson/signalk-net-ais-plugin)
+[![SignalK Plugin CI](https://github.com/KEGustafsson/signalk-net-ais-plugin/actions/workflows/signalk-plugin-ci.yml/badge.svg)](https://github.com/KEGustafsson/signalk-net-ais-plugin/actions/workflows/signalk-plugin-ci.yml)
 
 SignalK plugin to gather marine traffic information (AIS) from Finnish Transport Agency’s data sources, https://www.digitraffic.fi/en/.
 
@@ -23,31 +24,20 @@ npm run build      # clean and compile TypeScript to dist/
 npm test           # run tests
 ```
 
+## Continuous integration
+
+Every push and pull request runs the shared
+[SignalK Plugin CI](https://github.com/SignalK/signalk-server/blob/master/.github/workflows/plugin-ci.yml)
+reusable workflow. It validates the plugin manifest, entry point, JSON schema
+and the start/stop/restart lifecycle, then builds and runs the test suite on
+Linux (x64 and arm64), macOS and Windows with Node 22 and 24.
+
+The advisory armv7 leg (Cerbo GX / Venus OS, Node 20 under QEMU emulation) is
+**not** run automatically — it takes roughly half an hour of emulated CI per
+push. Run it on demand from **Actions → SignalK Plugin CI → Run workflow** with
+*Run armv7 (Cerbo GX) tests via QEMU* ticked. The same manual trigger can start
+a SignalK server and install the plugin into it for an integration test.
+
 ## Changelog
 
-- v2.0.0, refactor: TypeScript, native fetch, test suite, bug fixes
-- v1.5.3, fix: paths updated
-- v1.5.2, fix: small fixes 
-- v1.5.1, fix: atons -> meteo context 
-- v1.5.0, feat: atons included 
-- v1.4.1, fix: small fixes  
-- v1.4.0, fix: fetch to new version 
-- v1.3.1, fix: epoch time in milliseconds
-- v1.3.0, fix: new digitraffic api in use
-- v1.2.1, fix: log removed
-- v1.2.0, fix: navStat fields added
-- v1.1.1, fix: current status of the plugin updated
-- v1.1.0, fix: source info added
-- v1.0.0, v1 release
-- v0.0.15, fix: skip data fecthing if no location available & location.sensorType
-- v0.0.14, fix: eta & timestamp
-- v0.0.13, fix: ais path
-- v0.0.12, fix: state mapping and dashboard reporting updated
-- v0.0.11, fix: callsignVhf and imo paths
-- v0.0.10, fix
-- v0.0.9, fix: key/value locations aligned with AIS input
-- v0.0.8, fix: fetch error logs to console
-- v0.0.7, fix
-- v0.0.6, all available meta data added
-- v0.0.5, sog calculation corrected
-- v0.0.4, Meta data (AIS names) for target
+See [CHANGELOG.md](CHANGELOG.md).

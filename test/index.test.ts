@@ -477,3 +477,81 @@ describe('double start protection', () => {
     plugin.stop();
   });
 });
+
+describe('configuration defaults', () => {
+  it('starts with schema defaults when called without options', async () => {
+    const app = createMockApp();
+    const plugin = createPlugin(app);
+
+    mockFetch.mockResolvedValue(mockJsonResponse({ features: [] }));
+
+    expect(() => plugin.start()).not.toThrow();
+
+    await vi.advanceTimersByTimeAsync(5000);
+
+    // position_retention defaults to 30 minutes, so `from` is now - 30 * 60000
+    const url = String(mockFetch.mock.calls[0]?.[0]);
+    expect(url).toContain('radius=10');
+    plugin.stop();
+  });
+
+  it('does not schedule a NaN interval when options are empty', async () => {
+    const app = createMockApp();
+    const plugin = createPlugin(app);
+
+    mockFetch.mockResolvedValue(mockJsonResponse({ features: [] }));
+
+    plugin.start({});
+
+    const locationCalls = () =>
+      mockFetch.mock.calls.filter((c) => String(c[0]).includes('/ais/v1/locations')).length;
+
+    // With the default position_update of 1 minute there is exactly one
+    // locations fetch from the initial 5s timeout after 30s, not thousands
+    // from a NaN (i.e. 1ms) interval.
+    await vi.advanceTimersByTimeAsync(30000);
+    expect(locationCalls()).toBe(1);
+
+    // The interval fires at 60s.
+    await vi.advanceTimersByTimeAsync(30000);
+    expect(locationCalls()).toBe(2);
+
+    plugin.stop();
+  });
+
+  it('falls back to defaults for out-of-range numeric options', async () => {
+    const app = createMockApp();
+    const plugin = createPlugin(app);
+
+    mockFetch.mockResolvedValue(mockJsonResponse({ features: [] }));
+
+    plugin.start({
+      position_update: 0,
+      position_retention: Number.NaN,
+      position_radius: -5,
+      atons_data: false,
+    });
+
+    await vi.advanceTimersByTimeAsync(5000);
+
+    const url = String(mockFetch.mock.calls[0]?.[0]);
+    expect(url).toContain('radius=10');
+    plugin.stop();
+  });
+
+  it('honours atons_data: false without falling back to the default', async () => {
+    const app = createMockApp();
+    const plugin = createPlugin(app);
+
+    mockFetch.mockResolvedValue(mockJsonResponse({ features: [] }));
+
+    plugin.start({ ...defaultOptions(), atons_data: false });
+
+    await vi.advanceTimersByTimeAsync(5000);
+
+    // Only the AIS locations endpoint is called, never the meteo one.
+    const urls = mockFetch.mock.calls.map((c) => String(c[0]));
+    expect(urls.some((u) => u.includes('measurements'))).toBe(false);
+    plugin.stop();
+  });
+});

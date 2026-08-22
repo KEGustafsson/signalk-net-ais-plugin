@@ -1,6 +1,6 @@
 {
   "name": "signalk-net-ais-plugin",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Marine traffic information is gathered from Finnish Transport Agency’s data sources",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,6 +17,12 @@
   "keywords": [
     "signalk-node-server-plugin"
   ],
+  "signalk": {
+    "displayName": "Net-AIS",
+    "screenshots": [
+      "doc/200km_radius.jpg"
+    ]
+  },
   "repository": "https://github.com/KEGustafsson/signalk-net-ais-plugin",
   "author": "Karl-Erik Gustafsson",
   "license": "MIT",
