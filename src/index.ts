@@ -34,10 +34,39 @@ import {
 import { buildLocationDelta, buildMetadataDelta, buildMeteoDelta } from './delta';
 import { estimateDataSizeKb } from './converters';
 
+// Single source of truth for the plugin configuration defaults. The JSON
+// schema below advertises these to the server UI, and start() falls back to
+// them whenever the server hands over a partial or empty configuration (which
+// it does when the plugin is enabled before it has ever been configured).
+const DEFAULT_OPTIONS: PluginOptions = {
+  position_update: 1,
+  position_retention: 30,
+  position_radius: 10,
+  atons_data: true,
+};
+
+function positiveNumber(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function resolveOptions(options?: Partial<PluginOptions>): PluginOptions {
+  const given = options ?? {};
+  return {
+    position_update: positiveNumber(given.position_update, DEFAULT_OPTIONS.position_update),
+    position_retention: positiveNumber(
+      given.position_retention,
+      DEFAULT_OPTIONS.position_retention
+    ),
+    position_radius: positiveNumber(given.position_radius, DEFAULT_OPTIONS.position_radius),
+    atons_data:
+      typeof given.atons_data === 'boolean' ? given.atons_data : DEFAULT_OPTIONS.atons_data,
+  };
+}
+
 function createPlugin(app: SignalKApp): SignalKPlugin {
-  let positionUpdate = 1;
-  let positionRetention = 30;
-  let positionRadius = 10;
+  let positionUpdate = DEFAULT_OPTIONS.position_update;
+  let positionRetention = DEFAULT_OPTIONS.position_retention;
+  let positionRadius = DEFAULT_OPTIONS.position_radius;
 
   let timeoutInitialAis: ReturnType<typeof setTimeout> | undefined;
   let intervalAis: ReturnType<typeof setInterval> | undefined;
@@ -134,13 +163,14 @@ function createPlugin(app: SignalKApp): SignalKPlugin {
     description:
       "Marine traffic information is gathered from Finnish Transport Agency's data sources",
 
-    start(options: PluginOptions) {
+    start(options?: Partial<PluginOptions>) {
       // Guard against double-start: clean up any existing timers
       plugin.stop();
 
-      positionUpdate = options.position_update;
-      positionRetention = options.position_retention;
-      positionRadius = options.position_radius;
+      const config = resolveOptions(options);
+      positionUpdate = config.position_update;
+      positionRetention = config.position_retention;
+      positionRadius = config.position_radius;
 
       app.debug(`position_update: ${positionUpdate}`);
       app.debug(`position_retention: ${positionRetention}`);
@@ -167,7 +197,7 @@ function createPlugin(app: SignalKApp): SignalKPlugin {
       timeoutInitialAis = setTimeout(() => void readInfo(), 5000);
       intervalAis = setInterval(() => void readInfo(), positionUpdate * 60000);
 
-      if (options.atons_data) {
+      if (config.atons_data) {
         timeoutInitialMeteo = setTimeout(() => void readMeteo(), 5000);
         intervalMeteo = setInterval(() => void readMeteo(), positionUpdate * 60000);
       }
@@ -200,22 +230,22 @@ function createPlugin(app: SignalKApp): SignalKPlugin {
       properties: {
         position_update: {
           type: 'integer',
-          default: 1,
+          default: DEFAULT_OPTIONS.position_update,
           title: 'How often AIS data is fetch (in minutes)',
         },
         position_retention: {
           type: 'integer',
-          default: 30,
+          default: DEFAULT_OPTIONS.position_retention,
           title: 'How old AIS data is fetch (minutes from now)',
         },
         position_radius: {
           type: 'integer',
-          default: 10,
+          default: DEFAULT_OPTIONS.position_radius,
           title: 'AIS targets around the vessel (radius in km)',
         },
         atons_data: {
           type: 'boolean',
-          default: true,
+          default: DEFAULT_OPTIONS.atons_data,
           title: 'Fetch Meteo data (Sea State Estimation) from AtoN sites',
         },
       },
