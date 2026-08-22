@@ -14,6 +14,8 @@ All notable changes to this project are documented in this file.
 - feat: `signalk.screenshots` declared in `package.json` and the screenshot
   shipped in the npm tarball so the App Store can show it.
 - docs: changelog moved out of `README.md` into this file.
+- chore: `vitest.config.ts` renamed to `vitest.config.mts` so Vite's native
+  config loader stops warning about ESM syntax in a file loaded as CommonJS.
 
 ## 2.0.0
 
